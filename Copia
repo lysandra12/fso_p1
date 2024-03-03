@@ -69,6 +69,14 @@ then
 	fi
 fi
 
+# Here check if there are file to make a copy
+let n_files=$#-$n
+if [ $n_files -eq 1 ]
+then
+	echo "Error: No files to make a copy."
+	exit 1
+fi
+
 # Here we shift n flags and iterate through all the files checking the validity
 # of the names (no -D or -k files)
 shift $n
