@@ -1,0 +1,66 @@
+#! /bin/bash
+
+#Copia [-k] [-D] fitxer1 fitxer2 ... fitxer_tgz
+
+#Limit cases:
+#1: -D and -k are not valid file names.
+#2: last file should always be *.tgz or *.tar.gz
+
+# Error when no arguments
+if [ $# -eq 0 ]
+then
+	echo "Error: Enter arguments."
+	exit 1
+fi
+
+# Error when "./Copia -k" or when "./Copia -k -D"
+date=0
+dry_run=0
+if [ $1 = "-k" ]
+then
+	if [ $# -eq 1 ]
+	then
+		echo "Error: Flag without files."
+		exit 1
+	else
+		if [ $2 = "-D" ]
+		then
+			if [ $# -eq 2 ]
+			then
+				echo "Error: Flags without files."
+				exit 1
+			fi
+			dry_run=1
+		fi
+	fi
+	date=1
+fi
+
+# Error when "./Copia -D" or when "./Copia -D -k"
+if [ $1 = "-D" ]
+then
+	if [ $# -eq 1 ]
+	then
+		echo "Error: Flag without files."
+		exit 1
+	else
+		if [ $2 = "-k" ]
+		then
+			echo "Error: Flag order not correct."
+			exit 1
+		fi
+	fi
+	dry_run=1
+fi
+
+# Error if last argument does not end with *.tgz or *.tar.gz
+for i in $@; do :; done
+
+if [[ "$i" != *.tgz ]]
+then
+	if [[ "$i" != *tar.gz ]]
+	then
+		echo "Error: Last file should end with .tgz or .tar.gz"
+		exit 1
+	fi
+fi
