@@ -1,1 +1,33 @@
 #! /bin/bash
+
+# Recupera [-D] fitxer_tgz fitxer1 fitxer2 ... directori_destí
+
+# Error when no arguments
+if [ $# -eq 0 ]
+then
+	echo "Error: Enter arguments."
+	exit 1
+fi
+
+dry_run=0
+tar_file=$1
+
+# Error when "./Copia -D"
+if [ $1 = "-D" ]
+then
+	if [ $# -eq 1 ]
+	then
+		echo "Error: Flag without files."
+		exit 1
+	fi
+	tar_file=$2
+	shift 1
+	dry_run=1
+fi
+
+# Does the tar to decompress exists?
+if [ -ne $tar_file ]
+then
+	echo "Error: $tar_file does not exist"
+	exit 1
+fi

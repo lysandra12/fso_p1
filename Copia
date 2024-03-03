@@ -69,8 +69,8 @@ then
 	fi
 fi
 
-# We set the last argument to tar_name
-tar_name=$i
+# We set the last argument to tar_file
+tar_file=$i
 
 # Here check if there are files to make a copy
 let n_files=$#-$n
@@ -103,7 +103,7 @@ args=${@:1:$((${#}-1))}
 # Here we create the .tgz or .tar.gz
 if [ $dry_run -eq 1 ]
 then
-	echo "tar -cvf $tar_name $args"
+	echo "tar -cvf $tar_file $args"
 else
-	tar -cvf $tar_name $args
+	tar -cvf $tar_file $args
 fi
