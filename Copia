@@ -101,4 +101,9 @@ done
 args=${@:1:$((${#}-1))}
 
 # Here we create the .tgz or .tar.gz
-tar -cvf $tar_name $args
+if [ $dry_run -eq 1 ]
+then
+	echo "tar -cvf $tar_name $args"
+else
+	tar -cvf $tar_name $args
+fi
