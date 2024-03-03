@@ -16,6 +16,7 @@ fi
 # Error when "./Copia -k" or when "./Copia -k -D"
 date=0
 dry_run=0
+n=0
 if [ $1 = "-k" ]
 then
 	if [ $# -eq 1 ]
@@ -30,8 +31,10 @@ then
 				echo "Error: Flags without files."
 				exit 1
 			fi
+			let "n++"
 			dry_run=1
 		fi
+		let "n++"
 	fi
 	date=1
 fi
@@ -50,11 +53,12 @@ then
 			exit 1
 		fi
 	fi
+	let "n++"
 	dry_run=1
 fi
 
 # Error if last argument does not end with *.tgz or *.tar.gz
-for i in $@; do :; done
+for i in "$@"; do :; done
 
 if [[ "$i" != *.tgz ]]
 then
@@ -64,3 +68,21 @@ then
 		exit 1
 	fi
 fi
+
+# Here we shift n flags and iterate through all the files checking the validity
+# of the names (no -D or -k files)
+shift $n
+
+for i in "$@"
+do
+	if [ $i = "-k" ]
+	then
+		echo "Error: File name cannot be '-k'"
+		exit 1
+	elif [ $i = "-D" ]
+	then
+		echo "Error: File name cannot be '-D'"
+		exit 1
+	fi
+done
+
