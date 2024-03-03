@@ -69,7 +69,10 @@ then
 	fi
 fi
 
-# Here check if there are file to make a copy
+# We set the last argument to tar_name
+tar_name=$i
+
+# Here check if there are files to make a copy
 let n_files=$#-$n
 if [ $n_files -eq 1 ]
 then
@@ -94,3 +97,8 @@ do
 	fi
 done
 
+# Get all the arguments except the last one.
+args=${@:1:$((${#}-1))}
+
+# Here we create the .tgz or .tar.gz
+tar -cvf $tar_name $args
