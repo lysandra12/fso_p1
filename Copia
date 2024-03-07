@@ -3,7 +3,8 @@
 #Copia [-k] [-D] fitxer1 fitxer2 ... fitxer_tgz
 
 #Limit cases:
-#1: -D and -k are not valid file names.
+#1: -D and -K are valid names but cannot be the first ones,
+# as they will get interpreted as flags.
 #2: last file should always be *.tgz or *.tar.gz
 
 # Error when no arguments
@@ -13,11 +14,11 @@ then
 	exit 1
 fi
 
-# Error when "./Copia -k" or when "./Copia -k -D"
+# Error when "./Copia -K" or when "./Copia -K -D"
 date=0
 dry_run=0
 n=0
-if [ $1 = "-k" ]
+if [ $1 = "-K" ]
 then
 	if [ $# -eq 1 ]
 	then
@@ -34,12 +35,12 @@ then
 			let "n++"
 			dry_run=1
 		fi
-		let "n++"
 	fi
+	let "n++"
 	date=1
 fi
 
-# Error when "./Copia -D" or when "./Copia -D -k"
+# Error when "./Copia -D" or when "./Copia -D -K"
 if [ $1 = "-D" ]
 then
 	if [ $# -eq 1 ]
@@ -47,10 +48,15 @@ then
 		echo "Error: Flag without files."
 		exit 1
 	else
-		if [ $2 = "-k" ]
+		if [ $2 = "-K" ]
 		then
-			echo "Error: Flag order not correct."
-			exit 1
+			if [ $# -eq 2 ]
+			then
+				echo "Error: Flags without files."
+				exit 1
+			fi
+			let "n++"
+			date=1
 		fi
 	fi
 	let "n++"
@@ -64,7 +70,7 @@ if [[ "$i" != *.tgz ]]
 then
 	if [[ "$i" != *tar.gz ]]
 	then
-		echo "Error: Last file should end with .tgz or .tar.gz"
+		echo "Error: Last file should have the extension .tgz or .tar.gz"
 		exit 1
 	fi
 fi
@@ -80,69 +86,110 @@ then
 	exit 1
 fi
 
-# Here we shift n flags and iterate through all the files checking the validity
-# of the names (no -D or -k files)
+# We shift left n arguments (remove the flags we had).
 shift $n
 
-for i in "$@"
-do
-	if [ $i = "-k" ]
-	then
-		echo "Error: File name cannot be '-k'"
-		exit 1
-	elif [ $i = "-D" ]
-	then
-		echo "Error: File name cannot be '-D'"
-		exit 1
-	fi
-done
-
 # Get all the arguments except the last one.
-files_to_copy=${@:1:$((${#}-1))}
+files_to_store=${@:1:$((${#}-1))}
 
 # If the .tgz or .tar.gz already exists and we need to add files to it,
 # or if we will create a new .tgz or .tar.gz
 create_tar=0
-if [ $tar_file -e ]
+files_inside=
+if [ ! -f $tar_file ]
 then
 	create_tar=1
-fi
-
-# If dry_run is activated
-if [ $dry_run -eq 1 ]
-then
-	for i in "$files_to_copy"
-	do
-		# Is i inside tar_file?
-		if [ $create_tar -eq 0 ]
-		then
-			if [ $date -eq 1 ]
-			then
-				echo "File ${i} gets added as ${i}.date inside ${tar_file}."
-			else
-				echo "File ${i} gets overwritten inside ${tar_file}."
-			fi
-		else
-			echo "File ${i} gets added inside ${tar_file}."
-		fi
-	done
 else
-	if [ $date -eq 1 ]
+	# Is the tar_file really valid?
+	if [ tar -tf "$tar_file" &> /dev/null ]
 	then
-		if [ $create_tar -eq 1 ]
-		then
-			tar -cfzp $tar_file $files_to_copy
-		else
-			echo "if date is activated, I must loop through each \
-				file and see if it exists inside. Add a new file with the date will be added"
-		fi
+		files_inside=$(tar -tf $tar_file)
 	else
-		if [ $create_tar -eq 1 ]
-		then
-			tar -cfzp $tar_file $files_to_copy
-		else
-			echo "I need to override files inside tar"
-			#tar -cvf $tar_file $args
-		fi
+		echo "Error: The existing tar file is not valid! Stopping the process to prevent potential data lose."
+		exit 2
 	fi
 fi
+
+#echo "File has to be created? $create_tar Files inside tar: $files_inside. Tar name $tar_file"
+
+#for i in "$files_to_store"
+#do
+#	echo "$i"
+#done
+# If dry_run is activated
+
+# Get the files inside the tar
+
+if [ $dry_run -eq 1 ]
+then
+	if [ $create_tar -eq 1 ]
+	then
+		echo "Creating $tar_file."
+		for i in $files_to_store
+		do
+			if [ -e "$i" ]
+			then
+				if [ -f "$i" ]
+				then
+					echo "->File '${i}' exists. Adding it to '${tar_file}'."
+				elif [ -d "$i" ]
+				then
+					echo "->Directory '${i}' exists. Adding it to '${tar_file}'."
+				else
+					echo "->Error, '${i}' is neither file nor directory."
+				fi
+			else
+				echo "->Error, '${i}' does not exist."
+			fi
+		done
+	else
+		echo "$tar_file already exists."
+		for i in $files_to_store
+		do
+			if [ -e "$i" ]
+			then
+				echo "a"
+			fi
+		done
+	fi
+else
+	echo "Not a dry run."
+fi
+
+#if [ $dry_run -eq 1 ]
+#then
+#	for i in "$files_to_store"
+#	do
+#		# Is i inside tar_file?
+#		if [ $create_tar -eq 0 ]
+#		then
+#			if [ $date -eq 1 ]
+#			then
+#				echo "File $i gets added as $i.date inside $tar_file."
+#			else
+#				echo "File $i gets overwritten inside $tar_file"
+#			fi
+#		else
+#			echo "File $i gets added inside $tar_file."
+#		fi
+#	done
+#else
+#	if [ $date -eq 1 ]
+#	then
+#		if [ $create_tar -eq 1 ]
+#		then
+#			tar -cfzp $tar_file $files_to_copy
+#		else
+#			echo "if date is activated, I must loop through each \
+#				file and see if it exists inside. Add a new file with the date will be added"
+#		fi
+#	else
+#		if [ $create_tar -eq 1 ]
+#		then
+#			tar -cfzp $tar_file $files_to_copy
+#		else
+#			#echo "I need to override files inside tar"
+#			tar -cvf $tar_file $files_to_copy
+#		fi
+#	fi
+#fi
