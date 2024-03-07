@@ -101,7 +101,8 @@ then
 	create_tar=1
 else
 	# Is the tar_file really valid?
-	if [ tar -tf "$tar_file" &> /dev/null ]
+	tar -tf "$tar_file" &> /dev/null
+	if [ $? -eq 0 ]
 	then
 		files_inside=$(tar -tf $tar_file)
 	else
