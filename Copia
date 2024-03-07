@@ -111,6 +111,8 @@ else
 	fi
 fi
 
+#echo "$files_inside"
+
 #echo "File has to be created? $create_tar Files inside tar: $files_inside. Tar name $tar_file"
 
 #for i in "$files_to_store"
@@ -149,12 +151,87 @@ then
 		do
 			if [ -e "$i" ]
 			then
-				echo "a"
+				if [ $date -eq 1 ]
+				then
+					found=0
+					for j in $files_inside
+					do
+						if [ j == "$i" ]
+						then
+							found=1
+						fi
+					done
+					if [ $found -eq 1 ]
+					then
+						date=$(date +"%y%m%d")
+						echo "->File '${i}' already exists inside '${tar_file}'. Adding it as '${i}.${date}'."
+					else
+						echo "->File '${i}' does not exist inside '${tar_file}'. Adding it."
+					fi
+				else
+					if [ -f "$i" ]
+					then
+						echo "->File '${i}' exists. Adding it to '${tar_file}'."
+					elif [ -d "$i" ]
+					then
+						echo "->Directory '${i}' exists. Adding it to '${tar_file}'."
+					else
+						echo "->Error, '${i}' is neither file nor directory."
+					fi
+				fi
+			else
+				echo "->Error, '${i}' does not exist."
 			fi
 		done
 	fi
 else
-	echo "Not a dry run."
+	if [ $create_tar -eq 1 ]
+	then
+		for i in $files_to_store
+		do
+			if [ -e "$i" ]
+			then
+				tar -czvf $tar_file $i &> /dev/null
+			fi
+		done
+		echo "->Compressed '$files_to_store' into '$tar_file'."
+	else
+		for i in $files_to_store
+		do
+			if [ -e "$i" ]
+			then
+				if [ $date -eq 1 ]
+				then
+					found=0
+					for j in $files_inside
+					do
+						if [ j == "$i" ]
+						then
+							found=1
+						fi
+						if [ $found -eq 1 ]
+						then
+							date=$(date +"%y%m%d")
+							name="$i"."$date"
+							mv $i $name
+							tar -czvf $tar_file $name &> /dev/null
+							mv $name $i
+						else
+							tar -czvf $tar_file $i &> /dev/null
+						fi
+					done
+				else
+					if [ -f "$i" ]
+					then
+						tar -czvf $tar_file $i &> /dev/null
+					elif [ -d "$i" ]
+					then
+						tar -czvf $tar_file $i &> /dev/null
+					fi
+				fi
+			fi
+		done
+	fi
 fi
 
 #if [ $dry_run -eq 1 ]
