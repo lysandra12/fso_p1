@@ -156,7 +156,7 @@ then
 					found=0
 					for j in $files_inside
 					do
-						if [ j == "$i" ]
+						if [ "$j" == "$i" ]
 						then
 							found=1
 						fi
@@ -187,14 +187,15 @@ then
 else
 	if [ $create_tar -eq 1 ]
 	then
+		touch $tar_file
 		for i in $files_to_store
 		do
 			if [ -e "$i" ]
 			then
-				tar -czvf $tar_file $i &> /dev/null
+				tar -uf $tar_file $i &> /dev/null
 			fi
 		done
-		echo "->Compressed '$files_to_store' into '$tar_file'."
+		echo "->'$tar_file' created."
 	else
 		for i in $files_to_store
 		do
@@ -205,7 +206,7 @@ else
 					found=0
 					for j in $files_inside
 					do
-						if [ j == "$i" ]
+						if [ "$j" == "$i" ]
 						then
 							found=1
 						fi
@@ -214,19 +215,19 @@ else
 							date=$(date +"%y%m%d")
 							name="$i"."$date"
 							mv $i $name
-							tar -czvf $tar_file $name &> /dev/null
+							tar -uf $tar_file $name &> /dev/null
 							mv $name $i
 						else
-							tar -czvf $tar_file $i &> /dev/null
+							tar -uf $tar_file $i &> /dev/null
 						fi
 					done
 				else
 					if [ -f "$i" ]
 					then
-						tar -czvf $tar_file $i &> /dev/null
+						tar -uf $tar_file $i &> /dev/null
 					elif [ -d "$i" ]
 					then
-						tar -czvf $tar_file $i &> /dev/null
+						tar -uf $tar_file $i &> /dev/null
 					fi
 				fi
 			fi
