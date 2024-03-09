@@ -111,15 +111,7 @@ else
 	fi
 fi
 
-#echo "$files_inside"
-
-#echo "File has to be created? $create_tar Files inside tar: $files_inside. Tar name $tar_file"
-
-#for i in "$files_to_store"
-#do
-#	echo "$i"
-#done
-# If dry_run is activated
+abs_path=$(pwd)
 
 # Get the files inside the tar
 
@@ -132,17 +124,24 @@ then
 		do
 			if [ -e "$i" ]
 			then
-				if [ -f "$i" ]
+				if [[ "$i" == $abs_path* ]]
 				then
-					echo "->File '${i}' exists. Adding it to '${tar_file}'."
-				elif [ -d "$i" ]
-				then
-					echo "->Directory '${i}' exists. Adding it to '${tar_file}'."
+					file=${i#"${abs_path}/"}
+					echo "Absolute path detected. Compressed from '${i}' to '${file}'."
 				else
-					echo "->Error, '${i}' is neither file nor directory."
+					file=$i
+				fi
+				if [ -f "$file" ]
+				then
+					echo "->File '${file}' exists. Adding it to '${tar_file}'."
+				elif [ -d "$file" ]
+				then
+					echo "->Directory '${file}' exists. Adding it to '${tar_file}'."
+				else
+					echo "->Error, '${file}' is neither file nor directory."
 				fi
 			else
-				echo "->Error, '${i}' does not exist."
+				echo "->Error, '${file}' does not exist."
 			fi
 		done
 	else
@@ -151,12 +150,18 @@ then
 		do
 			if [ -e "$i" ]
 			then
+				if [[ "$i" == $abs_path* ]]
+				then
+					file=${i#"$abs_path/"}
+				else
+					file=$i
+				fi
 				if [ $date -eq 1 ]
 				then
 					found=0
 					for j in $files_inside
 					do
-						if [ "$j" == "$i" ]
+						if [ "$j" == "$file" ]
 						then
 							found=1
 						fi
@@ -164,23 +169,23 @@ then
 					if [ $found -eq 1 ]
 					then
 						date=$(date +"%y%m%d")
-						echo "->File '${i}' already exists inside '${tar_file}'. Adding it as '${i}.${date}'."
+						echo "->File '${file}' already exists inside '${tar_file}'. Adding it as '${file}.${date}'."
 					else
-						echo "->File '${i}' does not exist inside '${tar_file}'. Adding it."
+						echo "->File '${file}' does not exist inside '${tar_file}'. Adding it."
 					fi
 				else
-					if [ -f "$i" ]
+					if [ -f "$file" ]
 					then
-						echo "->File '${i}' exists. Adding it to '${tar_file}'."
-					elif [ -d "$i" ]
+						echo "->File '${file}' exists. Adding it to '${tar_file}'."
+					elif [ -d "$file" ]
 					then
-						echo "->Directory '${i}' exists. Adding it to '${tar_file}'."
+						echo "->Directory '${file}' exists. Adding it to '${tar_file}'."
 					else
-						echo "->Error, '${i}' is neither file nor directory."
+						echo "->Error, '${file}' is neither file nor directory."
 					fi
 				fi
 			else
-				echo "->Error, '${i}' does not exist."
+				echo "->Error, '${file}' does not exist."
 			fi
 		done
 	fi
@@ -192,7 +197,13 @@ else
 		do
 			if [ -e "$i" ]
 			then
-				tar -uf $tar_file $i &> /dev/null
+				if [[ "$i" == $abs_path* ]]
+				then
+					file=${i#"$abs_path/"}
+				else
+					file=$i
+				fi
+				tar -uf $tar_file $file &> /dev/null
 			fi
 		done
 		echo "->'$tar_file' created."
@@ -201,33 +212,40 @@ else
 		do
 			if [ -e "$i" ]
 			then
+				if [[ "$i" == $abs_path* ]]
+				then
+					file=${i#"$abs_path/"}
+				else
+					file=$i
+				fi
+				echo "File is: $file"
 				if [ $date -eq 1 ]
 				then
 					found=0
 					for j in $files_inside
 					do
-						if [ "$j" == "$i" ]
+						if [ "$j" == "$file" ]
 						then
 							found=1
 						fi
 						if [ $found -eq 1 ]
 						then
 							date=$(date +"%y%m%d")
-							name="$i"."$date"
-							mv $i $name
+							name="$file"."$date"
+							mv $file $name
 							tar -uf $tar_file $name &> /dev/null
-							mv $name $i
+							mv $name $file
 						else
-							tar -uf $tar_file $i &> /dev/null
+							tar -uf $tar_file $file &> /dev/null
 						fi
 					done
 				else
-					if [ -f "$i" ]
+					if [ -f "$file" ]
 					then
-						tar -uf $tar_file $i &> /dev/null
-					elif [ -d "$i" ]
+						tar -uf $tar_file $file &> /dev/null
+					elif [ -d "$file" ]
 					then
-						tar -uf $tar_file $i &> /dev/null
+						tar -uf $tar_file $file &> /dev/null
 					fi
 				fi
 			fi
