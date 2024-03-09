@@ -218,25 +218,31 @@ else
 				else
 					file=$i
 				fi
-				echo "File is: $file"
 				if [ $date -eq 1 ]
 				then
 					found=0
 					for j in $files_inside
 					do
-						if [ "$j" == "$file" ]
+						if [ -f "$file" ]
 						then
-							found=1
-						fi
-						if [ $found -eq 1 ]
+							if [ "$j" == "$file" ]
+							then
+								found=1
+							fi
+							if [ $found -eq 1 ]
+							then
+								date=$(date +"%y%m%d")
+								name="$file"."$date"
+								mv "$file" "$name"
+								tar -uf $tar_file $name &> /dev/null
+								mv "$name" "$file"
+							else
+								tar -uf $tar_file $file &> /dev/null
+							fi
+						elif [ -d "$file" ]
 						then
-							date=$(date +"%y%m%d")
-							name="$file"."$date"
-							mv $file $name
-							tar -uf $tar_file $name &> /dev/null
-							mv $name $file
-						else
-							tar -uf $tar_file $file &> /dev/null
+							#here it should search all files inside dir and check if they are inside tar. Update them with a date
+							echo "a"
 						fi
 					done
 				else

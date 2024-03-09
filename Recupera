@@ -95,7 +95,7 @@ do
 			echo "->Extracting file '${i}' from '${tar_file}' into '${extract_dir}'."
 		else
 			tar -xf	${tar_file} $i
-			mv $i $extract_dir #&> /dev/null
+			mv -f $i $extract_dir #&> /dev/null
 		fi
 	else
 		if [ $dry_run -eq 1 ]
