@@ -11,7 +11,7 @@ fi
 
 dry_run=0
 tar_file=$1
-
+n=0
 # Error when "./Copia -D"
 if [ $1 = "-D" ]
 then
@@ -21,13 +21,65 @@ then
 		exit 1
 	fi
 	tar_file=$2
-	shift 1
+	let "n++"
 	dry_run=1
 fi
 
-# Does the tar to decompress exists?
-if [ -ne $tar_file ]
+# Does the tar end with .tgz or .tar.gz?
+if [[ "$tar_file" != *.tgz ]]
 then
-	echo "Error: $tar_file does not exist"
+	if [[ "$tar_file" != *.tar.gz ]]
+	then
+		echo "Error: First file should have the extension .tgz or .tar.gz"
+		exit 1
+	fi
+fi
+
+# Does the tar to decompress exists?
+if [ ! -e $tar_file ]
+then
+	echo "Error: $tar_file does not exist."
 	exit 1
+fi
+
+tar -tf "$tar_file" &> /dev/null
+if [ ! $? -eq 0 ]
+then
+	echo "Error: the existing tar file is not valid or is empty."
+	exit 1
+fi
+
+files_inside=$(tar -tf "$tar_file")
+let "n++"
+
+#echo "$files_inside"
+
+for i in "$@"
+do
+	:
+done
+
+if [ ! -d "$i" ]
+then
+	echo "Error: '${i}' is not a directory."
+	exit 1
+fi
+
+extract_dir=$i
+
+# We 'remove' n arguments from the left, obtaining the files and directories to extract
+shift $n
+
+# We get all the arguments except the last one
+files_to_extract=${@:1:$((${#}-1))}
+
+echo "Files to extract: $files_to_extract"
+
+# Here $tar_file is a valid compressed file and directory to extract is valid.
+# For each file
+if [ $dry_run -eq 1 ]
+then
+	echo "dry_run"
+else
+	echo "not dry run"
 fi
