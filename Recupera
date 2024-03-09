@@ -73,13 +73,34 @@ shift $n
 # We get all the arguments except the last one
 files_to_extract=${@:1:$((${#}-1))}
 
-echo "Files to extract: $files_to_extract"
+#echo "Files to extract: $files_to_extract"
 
 # Here $tar_file is a valid compressed file and directory to extract is valid.
 # For each file
-if [ $dry_run -eq 1 ]
-then
-	echo "dry_run"
-else
-	echo "not dry run"
-fi
+for i in $files_to_extract
+do
+	# Find file $i inside $files_inside
+	found=0
+	for j in $files_inside
+	do
+		if [ "$j" == "$i" ]
+		then
+			found=1
+		fi
+	done
+	if [ $found -eq 1 ]
+	then
+		if [ $dry_run -eq 1 ]
+		then
+			echo "->Extracting file '${i}' from '${tar_file}' into '${extract_dir}'."
+		else
+			tar -xf	${tar_file} $i -C $extract_dir
+		fi
+	else
+		if [ $dry_run -eq 1 ]
+		then
+			echo "->File '${i}' does not exist inside '${tar_file}'."
+		fi
+	fi
+done
+
