@@ -94,7 +94,8 @@ do
 		then
 			echo "->Extracting file '${i}' from '${tar_file}' into '${extract_dir}'."
 		else
-			tar -xf	${tar_file} $i -C $extract_dir
+			tar -xf	${tar_file} $i
+			mv $i $extract_dir
 		fi
 	else
 		if [ $dry_run -eq 1 ]
