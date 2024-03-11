@@ -1,1 +1,15 @@
 #! /bin/bash
+
+# Configura dia hora script parametres
+
+# First we check if script exists
+script=
+# Then we check the validity of the hour
+# Day?????? whats its meaning?
+# Maybe check parameters?
+
+# crontab -u root -e
+# (crontab -u $(whoami) -l; echo "test") | crontab -u $(whoami) 
+
+
+
