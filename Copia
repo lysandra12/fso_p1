@@ -203,7 +203,7 @@ then
 		else
 			if [ $dry_run -eq 1 ]
 			then
-				echo "->Error, '${file}' does not exist."
+				echo "->Error, '${i}' does not exist."
 			fi
 		fi
 	done
@@ -263,3 +263,14 @@ else
 		fi
 	done
 fi
+
+# Check if the tar created is empty. If it is, delete it
+if [ $dry_run -eq 0 ]
+then
+	tar -tf $tar_file &> /dev/null
+	if [ ! $? -eq 0 ]
+	then
+		rm -rf $tar_file
+	fi
+fi
+
