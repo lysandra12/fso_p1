@@ -17,14 +17,14 @@ copy_dir()
 		done
 		if [ $found -eq 1 ]
 		then
-			date=$(date +"%y%m%d")
+			date_name=$(date +"%y%m%d")
 			if [ $dry_run -eq 1 ]
 			then
-				echo "->File '${file}' already exists inside '${tar_file}'. Adding it as '${file}.${date}'."
+				echo "->File '${file}' already exists inside '${tar_file}'. Adding it as '${file}.${date_name}'."
 			else
-				name="$file"."$date"
+				name="$file"."$date_name"
 				mv "$file" "$name"
-				tar -uf $tar_file $name &> /dev/null
+				tar -upf $tar_file $name &> /dev/null
 				mv "$name" "$file"
 			fi
 		else
@@ -32,7 +32,7 @@ copy_dir()
 			then
 				echo "->File '${file}' does not exist inside '${tar_file}'. Adding it."
 			else
-				tar -uf $tar_file $file &> /dev/null
+				tar -upf $tar_file $file &> /dev/null
 			fi
 		fi
 	elif [ -d "$file" ]
@@ -161,7 +161,7 @@ if [ $create_tar -eq 1 ]
 then
 	if [ $dry_run -eq 1 ]
 	then
-		echo "Creating $tar_file."
+		echo "->Creating ${tar_file}."
 	else
 		touch $tar_file
 	fi
@@ -175,7 +175,7 @@ then
 				file=${i#"${abs_path}/"}
 				if [ $dry_run -eq 1 ]
 				then
-					echo "Absolute path detected. Compressed from '${i}' to '${file}'."
+					echo "->Absolute path detected. Compressed from '${i}' to '${file}'."
 				fi
 			fi
 			if [ -f "$file" ]
@@ -184,7 +184,7 @@ then
 				then
 					echo "->File '${file}' exists. Adding it to '${tar_file}'."
 				else
-					tar -uf $tar_file $file &> /dev/null
+					tar -upf $tar_file $file &> /dev/null
 				fi
 			elif [ -d "$file" ]
 			then
@@ -192,7 +192,7 @@ then
 				then
 					echo "->Directory '${file}' exists. Adding it to '${tar_file}'."
 				else
-					tar -uf $tar_file $file &> /dev/null
+					tar -upf $tar_file $file &> /dev/null
 				fi
 			else
 				if [ $dry_run -eq 1 ]
@@ -210,7 +210,7 @@ then
 else
 	if [ $dry_run -eq 1 ]
 	then
-		echo "$tar_file already exists."
+		echo "->${tar_file} already exists."
 	fi
 	for i in $files_to_store
 	do
@@ -229,7 +229,13 @@ else
 			then
 				if [ -d "$file" ]
 				then
-					dir=${file::-1}
+					last_char="${file: -1}"
+					if [ "$last_char" == "/" ]
+					then	
+						dir=${file::-1}
+					else
+						dir=$file
+					fi
 					copy_dir $dir $tar_file $dry_run
 				else
 					copy_dir $file $tar_file $dry_run
@@ -241,7 +247,7 @@ else
 					then
 						echo "->File '${file}' exists. Updating it inside '${tar_file}'."
 					else
-						tar -uf $tar_file $file &> /dev/null
+						tar -upf $tar_file $file &> /dev/null
 					fi
 				elif [ -d "$file" ]
 				then
@@ -249,7 +255,7 @@ else
 					then
 						echo "->Directory '${file}' exists. Updating it inside '${tar_file}'."
 					else
-						tar -uf $tar_file $file &> /dev/null
+						tar -upf $tar_file $file &> /dev/null
 					fi
 				else
 					echo "->Error, '${file}' is neither file nor directory."

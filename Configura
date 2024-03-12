@@ -12,3 +12,4 @@ script=
 # (crontab -u $(whoami) -l; echo "test") | crontab -u $(whoami)
 echo"$cron_command" | crontab -
 
+* * * * * /home/milax/path/to/exec param | crontab -
