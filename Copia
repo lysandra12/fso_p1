@@ -4,9 +4,9 @@ copy_dir()
 {
 	file=$1
 	tar_file=$2
+	dry_run=$3
 	if [ -f "$file" ]
 	then
-		echo "File is $file"
 		found=0
 		for j in $files_inside
 		do
@@ -18,19 +18,28 @@ copy_dir()
 		if [ $found -eq 1 ]
 		then
 			date=$(date +"%y%m%d")
-			name="$file"."$date"
-			mv "$file" "$name"
-			tar -uf $tar_file $name &> /dev/null
-			mv "$name" "$file"
+			if [ $dry_run -eq 1 ]
+			then
+				echo "->File '${file}' already exists inside '${tar_file}'. Adding it as '${file}.${date}'."
+			else
+				name="$file"."$date"
+				mv "$file" "$name"
+				tar -uf $tar_file $name &> /dev/null
+				mv "$name" "$file"
+			fi
 		else
-			tar -uf $tar_file $file &> /dev/null
+			if [ $dry_run -eq 1 ]
+			then
+				echo "->File '${file}' does not exist inside '${tar_file}'. Adding it."
+			else
+				tar -uf $tar_file $file &> /dev/null
+			fi
 		fi
 	elif [ -d "$file" ]
 	then
-		echo "Directory is $file"
 		for entry in "${file}"/*
 		do
-			copy_dir $entry $tar_file
+			copy_dir $entry $tar_file $dry_run
 		done
 	fi
 }
@@ -148,130 +157,109 @@ fi
 
 abs_path=$(pwd)
 
-# Get the files inside the tar
-
-if [ $dry_run -eq 1 ]
+if [ $create_tar -eq 1 ]
 then
-	if [ $create_tar -eq 1 ]
+	if [ $dry_run -eq 1 ]
 	then
 		echo "Creating $tar_file."
-		for i in $files_to_store
-		do
-			if [ -e "$i" ]
+	else
+		touch $tar_file
+	fi
+	for i in $files_to_store
+	do
+		if [ -e "$i" ]
+		then
+			file=$i
+			if [[ "$i" == $abs_path* ]]
 			then
-				if [[ "$i" == $abs_path* ]]
+				file=${i#"${abs_path}/"}
+				if [ $dry_run -eq 1 ]
 				then
-					file=${i#"${abs_path}/"}
 					echo "Absolute path detected. Compressed from '${i}' to '${file}'."
-				else
-					file=$i
 				fi
-				if [ -f "$file" ]
+			fi
+			if [ -f "$file" ]
+			then
+				if [ $dry_run -eq 1 ]
 				then
 					echo "->File '${file}' exists. Adding it to '${tar_file}'."
-				elif [ -d "$file" ]
+				else
+					tar -uf $tar_file $file &> /dev/null
+				fi
+			elif [ -d "$file" ]
+			then
+				if [ $dry_run -eq 1 ]
 				then
 					echo "->Directory '${file}' exists. Adding it to '${tar_file}'."
 				else
+					tar -uf $tar_file $file &> /dev/null
+				fi
+			else
+				if [ $dry_run -eq 1 ]
+				then
 					echo "->Error, '${file}' is neither file nor directory."
 				fi
-			else
-				echo "->Error, '${file}' does not exist."
 			fi
-		done
-	else
-		echo "$tar_file already exists."
-		for i in $files_to_store
-		do
-			if [ -e "$i" ]
+		else
+			if [ $dry_run -eq 1 ]
 			then
-				if [[ "$i" == $abs_path* ]]
-				then
-					file=${i#"$abs_path/"}
-				else
-					file=$i
-				fi
-				if [ $date -eq 1 ]
-				then
-					found=0
-					for j in $files_inside
-					do
-						if [ "$j" == "$file" ]
-						then
-							found=1
-						fi
-					done
-					if [ $found -eq 1 ]
-					then
-						date=$(date +"%y%m%d")
-						echo "->File '${file}' already exists inside '${tar_file}'. Adding it as '${file}.${date}'."
-					else
-						echo "->File '${file}' does not exist inside '${tar_file}'. Adding it."
-					fi
-				else
-					if [ -f "$file" ]
-					then
-						echo "->File '${file}' exists. Adding it to '${tar_file}'."
-					elif [ -d "$file" ]
-					then
-						echo "->Directory '${file}' exists. Adding it to '${tar_file}'."
-					else
-						echo "->Error, '${file}' is neither file nor directory."
-					fi
-				fi
-			else
 				echo "->Error, '${file}' does not exist."
 			fi
-		done
-	fi
+		fi
+	done
 else
-	if [ $create_tar -eq 1 ]
+	if [ $dry_run -eq 1 ]
 	then
-		touch $tar_file
-		for i in $files_to_store
-		do
-			if [ -e "$i" ]
-			then
-				if [[ "$i" == $abs_path* ]]
-				then
-					file=${i#"$abs_path/"}
-				else
-					file=$i
-				fi
-				tar -uf $tar_file $file &> /dev/null
-			fi
-		done
-		echo "->'$tar_file' created."
-	else
-		for i in $files_to_store
-		do
-			if [ -e "$i" ]
-			then
-				if [[ "$i" == $abs_path* ]]
-				then
-					file=${i#"$abs_path/"}
-				else
-					file=$i
-				fi
-				if [ $date -eq 1 ]
-				then
-					if [ -d "$file" ]
-					then
-						dir=${file::-1}
-						copy_dir $dir $tar_file
-					else
-						copy_dir $file $tar_file
-					fi
-				else
-					if [ -f "$file" ]
-					then
-						tar -uf $tar_file $file &> /dev/null
-					elif [ -d "$file" ]
-					then
-						tar -uf $tar_file $file &> /dev/null
-					fi
-				fi
-			fi
-		done
+		echo "$tar_file already exists."
 	fi
+	for i in $files_to_store
+	do
+		if [ -e "$i" ]
+		then
+			file=$i
+			if [[ "$i" == $abs_path* ]]
+			then
+				file=${i#"${abs_path}/"}
+				if [ $dry_run -eq 1 ]
+				then
+					echo "Absolute path detected. Compressed from '${i}' to '${file}'."
+				fi
+			fi
+			if [ $date -eq 1 ]
+			then
+				if [ -d "$file" ]
+				then
+					dir=${file::-1}
+					copy_dir $dir $tar_file $dry_run
+				else
+					copy_dir $file $tar_file $dry_run
+				fi
+			else
+				if [ -f "$file" ]
+				then
+					if [ $dry_run -eq 1 ]
+					then
+						echo "->File '${file}' exists. Updating it inside '${tar_file}'."
+					else
+						tar -uf $tar_file $file &> /dev/null
+					fi
+				elif [ -d "$file" ]
+				then
+					if [ $dry_run -eq 1 ]
+					then
+						echo "->Directory '${file}' exists. Updating it inside '${tar_file}'."
+					else
+						tar -uf $tar_file $file &> /dev/null
+					fi
+				else
+					echo "->Error, '${file}' is neither file nor directory."
+				fi
+			fi
+		else
+			if [ $dry_run -eq 1 ]
+			then
+				echo "->Error, '${file}' does not exist."
+			fi
+		fi
+	done
 fi
