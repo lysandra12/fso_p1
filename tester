@@ -10,6 +10,7 @@ special_tar=special_tar.tgz
 
 tester_ok="Tester: (OK) $tar_name not created because files were not valid."
 tester_error="Tester: (ERROR) $tar_name created with invalid files."
+inside_msg="Tester: Files inside $tar_name:"
 
 if [ -f "$tar_name" ]
 then
@@ -33,10 +34,11 @@ echo ""
 echo "---TESTER: CHECKING WITH ONE VALID FILE:---"
 # Make a copy of a valid file.
 # Start with a dry run:
-./Copia -D $valid_file $tar_name		# "Creating tar.tgz \n ->File 'test' exists. Adding it to 'tar.tgz'."
-./Copia $valid_file $tar_name		# nothing to output
-tar -tf $tar_name			# "$valid_file"
+./Copia -D $valid_file $tar_name
+./Copia $valid_file $tar_name
 
+echo "$inside_msg"
+tar -tf $tar_name
 rm $tar_name
 
 echo ""
@@ -59,8 +61,9 @@ echo "---TESTER: CHECKING WITH ONE VALID FILE AND FLAG -K---"
 ./Copia $valid_file $tar_name
 ./Copia -D -K $valid_file $tar_name
 ./Copia -K $valid_file $tar_name
-tar -tf $tar_name
 
+echo "$inside_msg"
+tar -tf $tar_name
 rm $tar_name
 
 echo ""
@@ -79,8 +82,9 @@ echo ""
 echo "---TESTER: CHECKING WITH VALID DIR (ONE FILE INSIDE)---"
 ./Copia -D $valid_dir $tar_name
 ./Copia $valid_dir $tar_name
-tar -tf $tar_name
 
+echo "$inside_msg"
+tar -tf $tar_name
 rm $tar_name
 
 echo ""
@@ -88,8 +92,9 @@ echo "---TESTER: CHECKING WITH EMPTY DIR---"
 mkdir $empty_dir
 ./Copia -D $empty_dir $tar_name
 ./Copia $empty_dir $tar_name
-tar -tf $tar_name
 
+echo "$inside_msg"
+tar -tf $tar_name
 rmdir $empty_dir
 rm $tar_name
 
@@ -105,13 +110,15 @@ else
 	rm $tar_name
 fi
 
-
-# For some reason I don't fully understand, the behaviour when executing the following
-# case inside this tester differs from when it gets executed from the bash terminal.
-# But it works I swear.
 echo ""
-echo "---TESTER: CHECKING WITH VALID DIR AND FLAG -K (ONE FILE INSIDE)---error with tester"
-./tester_dir $valid_dir $tar_name
+echo "---TESTER: CHECKING WITH VALID DIR AND FLAG -K (ONE FILE INSIDE)---"
+./Copia $valid_dir $tar_name
+./Copia -K -D $valid_dir $tar_name
+./Copia -K $valid_dir $tar_name
+
+echo "$inside_msg"
+tar -tf $tar_name
+rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH EMPTY DIR AND FLAG -K---"
@@ -120,6 +127,7 @@ mkdir $empty_dir
 ./Copia -K -D $empty_dir $tar_name
 ./Copia -K $empty_dir $tar_name
 
+echo "$inside_msg"
 tar -tf $tar_name
 rmdir $empty_dir
 rm $tar_name
@@ -141,6 +149,7 @@ echo "---TESTER: CHECKING WITH VALID DIR AND VALID FILE---"
 ./Copia -D $valid_dir $valid_file $tar_name
 ./Copia $valid_dir $valid_file $tar_name
 
+echo "$inside_msg"
 tar -tf $tar_name
 rm $tar_name
 
@@ -149,6 +158,7 @@ echo "---TESTER: CHECKING WITH VALID DIR AND INVALID FILE---"
 ./Copia -D $valid_dir $invalid_file $tar_name
 ./Copia $valid_dir $invalid_file $tar_name
 
+echo "$inside_msg"
 tar -tf $tar_name
 rm $tar_name
 
@@ -157,6 +167,7 @@ echo "---TESTER: CHECKING WITH INVALID DIR AND VALID FILE---"
 ./Copia -D $invalid_dir $valid_file $tar_name
 ./Copia $invalid_dir $valid_file $tar_name
 
+echo "$inside_msg"
 tar -tf $tar_name
 rm $tar_name
 
@@ -174,16 +185,34 @@ else
 fi
 
 echo ""
-echo "---TESTER: CHECKING WITH VALID DIR AND VALID FILE AND FLAG -K---error with tester"
-./tester_dir "$valid_dir $valid_file" $tar_name
+echo "---TESTER: CHECKING WITH VALID DIR AND VALID FILE AND FLAG -K---"
+./Copia $valid_dir $valid_file $tar_name
+./Copia -K -D $valid_dir $valid_file $tar_name
+./Copia -K $valid_dir $valid_file $tar_name
+
+echo "$inside_msg"
+tar -tf $tar_name
+rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH VALID DIR AND INVALID FILE AND FLAG -K---"
-./tester_dir "$valid_dir $invalid_dir" $tar_name
+./Copia $valid_dir $invalid_file $tar_name
+./Copia -K -D $valid_dir $invalid_file $tar_name
+./Copia -K $valid_dir $invalid_file $tar_name
+
+echo "$inside_msg"
+tar -tf $tar_name
+rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH INVALID DIR AND VALID FILE AND FLAG -K---"
-./tester_dir "$invalid_dir $valid_file" $tar_name
+./Copia $invalid_dir $valid_file $tar_name
+./Copia -K -D $invalid_dir $valid_file $tar_name
+./Copia -K $invalid_dir $valid_file $tar_name
+
+echo "$inside_msg"
+tar -tf $tar_name
+rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH INVALID DIR AND INVALID FILE AND FLAG -K---"
