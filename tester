@@ -3,7 +3,7 @@
 valid_file=valid_file
 invalid_file=invalid_file	# Should not exist
 valid_dir=valid_dir/
-invalid_dir=invalid_dir	# Should not exist
+invalid_dir=invalid_dir/	# Should not exist
 empty_dir=empty_dir
 tar_name=tar.tgz
 special_tar=special_tar.tgz

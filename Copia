@@ -264,7 +264,7 @@ else
 		else
 			if [ $dry_run -eq 1 ]
 			then
-				echo "->Error, '${file}' does not exist."
+				echo "->Error, '${i}' does not exist."
 			fi
 		fi
 	done
