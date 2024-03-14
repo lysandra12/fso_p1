@@ -2,14 +2,51 @@
 
 # Configura dia hora script parametres
 
-# First we check if script exists
-script=
-# Then we check the validity of the hour
-# Day?????? whats its meaning?
-# Maybe check parameters?
+# check if at least there are 4 fields
+if [ $# -lt 4 ]
+then
+	echo "Error: Not enough parameters to execute."
+	exit 1
+fi
 
-# crontab -u root -e
-# (crontab -u $(whoami) -l; echo "test") | crontab -u $(whoami)
-echo"$cron_command" | crontab -
+# check if 'dia' is valid
+if ! [[ $1 =~ ^[0-9]+$ ]]
+then
+	echo "Error: 'dia' expects a number."
+	exit 1
+fi
 
-* * * * * /home/milax/path/to/exec param | crontab -
+day=$(($1))
+if [ "$day" -gt 7 ] || [ "$day" -lt 1 ]
+then
+	echo "Error: 'dia' not inside the expected range: [1-7]."
+	exit 1
+fi
+
+# check if 'hora' is valid
+if ! [[ $2 =~ ^[0-9]+$ ]]
+then
+	echo "Error: 'hora' expects a number."
+	exit 1
+fi
+
+hour=$(($2))
+if [ "$hour" -ge 24 ] || [ "$hour" -lt 0 ]
+then
+	echo "Error: 'hora' not inside the expected range: [0-23]."
+	exit 1
+fi
+
+# check if 'script' is valid
+script=$3
+
+#param is all the other things
+shift 3
+
+params=$@
+
+crontab_line="* ${hour} * * ${day} ${script} ${params}"
+
+#echo "${crontab_line}"
+
+echo "$crontab_line" | crontab -
