@@ -66,6 +66,11 @@ then
 fi
 
 extract_dir=$i
+curr_dir=0
+if [ "$extract_dir" == "." ]
+then
+	curr_dir=1
+fi
 
 # We 'remove' n arguments from the left, obtaining the files and directories to extract
 shift $n
@@ -95,8 +100,14 @@ do
 		then
 			echo "->Extracting file '${i}' from '${tar_file}' into '${extract_dir}'."
 		else
-			tar -xf	${tar_file} $i
-			mv -f $i $extract_dir #&> /dev/null
+			if [ $curr_dir -eq 1 ]
+			then
+				tar -xpf ${tar_file} $i -C $extract_dir
+			else
+				tar -xpf ${tar_file} $i
+				mv -f $i $extract_dir
+			fi
+			#mv -f $i $extract_dir #&> /dev/null
 		fi
 	#if not and  dry_run, print error
 	else

@@ -1,12 +1,13 @@
 #! /bin/bash
 
-valid_file=valid_file
+valid_file=files_to_test/valid_file
 invalid_file=invalid_file	# Should not exist
-valid_dir=valid_dir/
+valid_dir=files_to_test/valid_dir/
 invalid_dir=invalid_dir/	# Should not exist
 empty_dir=empty_dir
 tar_name=tar.tgz
-special_tar=special_tar.tgz
+special_dir=files_to_test/special_dir
+special_tar=files_to_test/special_tar.tgz
 
 tester_ok="Tester: (OK) $tar_name not created because files were not valid."
 tester_error="Tester: (ERROR) $tar_name created with invalid files."
@@ -19,23 +20,23 @@ fi
 
 # First lets test error input
 echo "---TESTER: CHECKING WITH WRONG INPUTS:---"
-./Copia 			# "Error: Enter arguments."
-./Copia -D			# "Error: Flag without files."
-./Copia -K			# "Error: Flag without files."
-./Copia -D $tar_name		# "Error: No files to make a copy."
-./Copia -D -K			# "Error: Flags without files."
-./Copia -K -D			# "Error: Flags without files."
-./Copia tar			# "Error: Last file should have the extension .tgz or .tar.gz"
-./Copia tar.tg			# Same as above.
-./Copia -D -K tar		# Same as above.
-./Copia -K -D $tar_name		# "Error: No files to make a copy."
+../Copia 			# "Error: Enter arguments."
+../Copia -D			# "Error: Flag without files."
+../Copia -K			# "Error: Flag without files."
+../Copia -D $tar_name		# "Error: No files to make a copy."
+../Copia -D -K			# "Error: Flags without files."
+../Copia -K -D			# "Error: Flags without files."
+../Copia tar			# "Error: Last file should have the extension .tgz or .tar.gz"
+../Copia tar.tg			# Same as above.
+../Copia -D -K tar		# Same as above.
+../Copia -K -D $tar_name		# "Error: No files to make a copy."
 
 echo ""
 echo "---TESTER: CHECKING WITH ONE VALID FILE:---"
 # Make a copy of a valid file.
 # Start with a dry run:
-./Copia -D $valid_file $tar_name
-./Copia $valid_file $tar_name
+../Copia -D $valid_file $tar_name
+../Copia $valid_file $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -45,8 +46,8 @@ echo ""
 echo "---TESTER: CHECKING WITH ONE INVALID FILE:---"
 # Make a copy of an invalid file.
 # Start with a dry run:
-./Copia -D $invalid_file $tar_name
-./Copia $invalid_file $tar_name
+../Copia -D $invalid_file $tar_name
+../Copia $invalid_file $tar_name
 if [ ! -f "$tar_name" ]
 then
 	echo "$tester_ok"
@@ -58,9 +59,9 @@ fi
 echo ""
 echo "---TESTER: CHECKING WITH ONE VALID FILE AND FLAG -K---"
 # Make a copy of a valid_file with flag -K
-./Copia $valid_file $tar_name
-./Copia -D -K $valid_file $tar_name
-./Copia -K $valid_file $tar_name
+../Copia $valid_file $tar_name
+../Copia -D -K $valid_file $tar_name
+../Copia -K $valid_file $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -68,8 +69,8 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH ONE INVALID FILE AND FLAG -K---"
-./Copia -D -K $invalid_file $tar_name
-./Copia -K $invalid_file $tar_name
+../Copia -D -K $invalid_file $tar_name
+../Copia -K $invalid_file $tar_name
 if [ ! -f "$tar_name" ]
 then
 	echo "$tester_ok"
@@ -80,8 +81,8 @@ fi
 
 echo ""
 echo "---TESTER: CHECKING WITH VALID DIR (ONE FILE INSIDE)---"
-./Copia -D $valid_dir $tar_name
-./Copia $valid_dir $tar_name
+../Copia -D $valid_dir $tar_name
+../Copia $valid_dir $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -90,8 +91,8 @@ rm $tar_name
 echo ""
 echo "---TESTER: CHECKING WITH EMPTY DIR---"
 mkdir $empty_dir
-./Copia -D $empty_dir $tar_name
-./Copia $empty_dir $tar_name
+../Copia -D $empty_dir $tar_name
+../Copia $empty_dir $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -100,8 +101,8 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH INVALID DIR---"
-./Copia -D $invalid_dir $tar_name
-./Copia $invalid_dir $tar_name
+../Copia -D $invalid_dir $tar_name
+../Copia $invalid_dir $tar_name
 if [ ! -f "$tar_name" ]
 then
 	echo "$tester_ok"
@@ -112,9 +113,9 @@ fi
 
 echo ""
 echo "---TESTER: CHECKING WITH VALID DIR AND FLAG -K (ONE FILE INSIDE)---"
-./Copia $valid_dir $tar_name
-./Copia -K -D $valid_dir $tar_name
-./Copia -K $valid_dir $tar_name
+../Copia $valid_dir $tar_name
+../Copia -K -D $valid_dir $tar_name
+../Copia -K $valid_dir $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -123,9 +124,9 @@ rm $tar_name
 echo ""
 echo "---TESTER: CHECKING WITH EMPTY DIR AND FLAG -K---"
 mkdir $empty_dir
-./Copia $empty_dir $tar_name
-./Copia -K -D $empty_dir $tar_name
-./Copia -K $empty_dir $tar_name
+../Copia $empty_dir $tar_name
+../Copia -K -D $empty_dir $tar_name
+../Copia -K $empty_dir $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -134,8 +135,8 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH INVALID DIR AND FLAG -K---"
-./Copia -K -D $invalid_dir $tar_name
-./Copia -K $invalid_dir $tar_name
+../Copia -K -D $invalid_dir $tar_name
+../Copia -K $invalid_dir $tar_name
 if [ ! -f "$tar_name" ]
 then
 	echo "$tester_ok"
@@ -146,8 +147,8 @@ fi
 
 echo ""
 echo "---TESTER: CHECKING WITH VALID DIR AND VALID FILE---"
-./Copia -D $valid_dir $valid_file $tar_name
-./Copia $valid_dir $valid_file $tar_name
+../Copia -D $valid_dir $valid_file $tar_name
+../Copia $valid_dir $valid_file $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -155,8 +156,8 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH VALID DIR AND INVALID FILE---"
-./Copia -D $valid_dir $invalid_file $tar_name
-./Copia $valid_dir $invalid_file $tar_name
+../Copia -D $valid_dir $invalid_file $tar_name
+../Copia $valid_dir $invalid_file $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -164,8 +165,8 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH INVALID DIR AND VALID FILE---"
-./Copia -D $invalid_dir $valid_file $tar_name
-./Copia $invalid_dir $valid_file $tar_name
+../Copia -D $invalid_dir $valid_file $tar_name
+../Copia $invalid_dir $valid_file $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -173,8 +174,8 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH INVALID DIR AND INVALID FILE---"
-./Copia -D $invalid_dir $invalid_file $tar_name
-./Copia $invalid_dir $invalid_file $tar_name
+../Copia -D $invalid_dir $invalid_file $tar_name
+../Copia $invalid_dir $invalid_file $tar_name
 
 if [ ! -f "$tar_name" ]
 then
@@ -186,9 +187,9 @@ fi
 
 echo ""
 echo "---TESTER: CHECKING WITH VALID DIR AND VALID FILE AND FLAG -K---"
-./Copia $valid_dir $valid_file $tar_name
-./Copia -K -D $valid_dir $valid_file $tar_name
-./Copia -K $valid_dir $valid_file $tar_name
+../Copia $valid_dir $valid_file $tar_name
+../Copia -K -D $valid_dir $valid_file $tar_name
+../Copia -K $valid_dir $valid_file $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -196,9 +197,9 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH VALID DIR AND INVALID FILE AND FLAG -K---"
-./Copia $valid_dir $invalid_file $tar_name
-./Copia -K -D $valid_dir $invalid_file $tar_name
-./Copia -K $valid_dir $invalid_file $tar_name
+../Copia $valid_dir $invalid_file $tar_name
+../Copia -K -D $valid_dir $invalid_file $tar_name
+../Copia -K $valid_dir $invalid_file $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -206,9 +207,9 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH INVALID DIR AND VALID FILE AND FLAG -K---"
-./Copia $invalid_dir $valid_file $tar_name
-./Copia -K -D $invalid_dir $valid_file $tar_name
-./Copia -K $invalid_dir $valid_file $tar_name
+../Copia $invalid_dir $valid_file $tar_name
+../Copia -K -D $invalid_dir $valid_file $tar_name
+../Copia -K $invalid_dir $valid_file $tar_name
 
 echo "$inside_msg"
 tar -tf $tar_name
@@ -216,8 +217,8 @@ rm $tar_name
 
 echo ""
 echo "---TESTER: CHECKING WITH INVALID DIR AND INVALID FILE AND FLAG -K---"
-./Copia -D -K  $invalid_dir $invalid_file $tar_name
-./Copia -K $invalid_dir $invalid_file $tar_name
+../Copia -D -K  $invalid_dir $invalid_file $tar_name
+../Copia -K $invalid_dir $invalid_file $tar_name
 
 if [ ! -f $tar_name ]
 then
@@ -229,14 +230,14 @@ fi
 
 echo ""
 echo "---TESTER: CHECKING WEIRD FILES AND DIR BEHAVIOUR---"
-./Copia -D $valid_file special_dir/-D $special_tar
-./Copia $valid_file special_dir/-D $special_tar
+../Copia -D $valid_file $special_dir/-D $special_tar
+../Copia $valid_file $special_dir/-D $special_tar
 
 tar -tf $special_tar
 rm $special_tar
 
-./Copia -D $valid_file special_dir/-K $special_tar
-./Copia $valid_file special_dir/-K $special_tar
+../Copia -D $valid_file $special_dir/-K $special_tar
+../Copia $valid_file $special_dir/-K $special_tar
 
 tar -tf $special_tar
 rm $special_tar

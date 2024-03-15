@@ -1,0 +1,4 @@
+To run the tests just execute the testers with:
+./tester_copia
+or
+./tester_recupera
