@@ -16,6 +16,14 @@ mkdir $final_dir
 ../Copia -D $valid_file $valid_dir $tar_name
 ../Copia $valid_file $valid_dir $tar_name
 
+echo ""
+# Errors
+../Recupera
+../Reupera -D
+../Recupera $valid_file
+../Recupera $tar_name
+
+echo ""
 echo "tar created:"
 tar -tf $tar_name
 echo ""
