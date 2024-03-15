@@ -17,7 +17,7 @@ then
 fi
 
 day=$(($1))
-if [ "$day" -gt 7 ] || [ "$day" -lt 1 ]
+if [ "$day" -gt 6 ] || [ "$day" -lt 0 ]
 then
 	echo "Error: 'dia' not inside the expected range: [1-7]."
 	exit 1
