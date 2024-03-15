@@ -1,0 +1,72 @@
+#! /bin/bash
+
+tar_name=tar.tgz
+final_dir=final_dir
+valid_file=files_to_test/valid_file
+valid_dir=files_to_test/valid_dir/
+extract_directory=extract_directory/
+
+if [ -d $final_dir ]
+then
+	rm -rf $final_dir
+fi
+mkdir $final_dir
+
+# We create a tar
+../Copia -D $valid_file $valid_dir $tar_name
+../Copia $valid_file $valid_dir $tar_name
+
+echo "tar created:"
+tar -tf $tar_name
+echo ""
+
+mv $tar_name $final_dir
+cd $final_dir
+
+final_dir=.
+
+echo "Tester: Extracting '${valid_file}' into '${final_dir}':"
+../../Recupera -D $tar_name $valid_file $final_dir
+../../Recupera $tar_name $valid_file $final_dir
+
+echo "Tester: files inside '${final_dir}':"
+ls ./files_to_test/*
+
+rm -rf files_to_test/
+
+echo ""
+echo "Tester: Extracting '${valid_dir}' into '${final_dir}':"
+../../Recupera -D $tar_name $valid_dir $final_dir
+../../Recupera $tar_name $valid_dir $final_dir
+
+echo "Tester:files inside '${final_dir}':"
+ls ./files_to_test/valid_dir/*
+
+rm -rf files_to_test/
+
+mkdir $extract_directory
+final_dir=$extract_directory
+
+echo ""
+echo "Tester: Extracting '${valid_file}' into '${final_dir}':"
+../../Recupera -D $tar_name $valid_file $final_dir
+../../Recupera $tar_name $valid_file $final_dir
+
+echo "Tester: files inside '${final_dir}':"
+ls ${final_dir}*
+
+rm -rf $final_dir
+mkdir $final_dir
+
+echo ""
+echo "Tester: Extracting '${valid_dir}' into '${final_dir}':"
+../../Recupera -D $tar_name $valid_dir $final_dir
+../../Recupera $tar_name $valid_dir $final_dir
+
+echo "Tester: files inside '${final_dir}':"
+ls ${final_dir}*
+
+cd ..
+rm -rf final_dir
+#rm $tar_name
+
