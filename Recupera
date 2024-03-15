@@ -88,6 +88,7 @@ do
 			found=1
 		fi
 	done
+	#if found extract it 
 	if [ $found -eq 1 ]
 	then
 		if [ $dry_run -eq 1 ]
@@ -97,6 +98,7 @@ do
 			tar -xf	${tar_file} $i
 			mv -f $i $extract_dir #&> /dev/null
 		fi
+	#if not and  dry_run, print error
 	else
 		if [ $dry_run -eq 1 ]
 		then
